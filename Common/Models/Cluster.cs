@@ -46,16 +46,6 @@ namespace Common.Models
 		#region public fields
 
 		/// <summary>
-		/// Сервис провайдер для подключения ApiService
-		/// </summary>
-		public IServiceProvider ServiceProvider
-		{
-			set
-			{
-				_serviceProvider = value;
-			}
-		}
-		/// <summary>
 		/// Подключенные ноды
 		/// </summary>
 		public ConcurrentDictionary<string, NodeInfo> AllNodes
@@ -94,9 +84,10 @@ namespace Common.Models
 
 		#region .ctors
 
-		public Cluster(ClusterSettings settings)
+		public Cluster(ClusterSettings settings, IServiceProvider serviceProvider)
 		{
 			_settings = settings;
+			_serviceProvider = serviceProvider;
 
 			//Подключаем стартовавшие ноды
 			Receive<NodeStarted>(ns =>

@@ -29,16 +29,7 @@ namespace Node2
         {
             // Add framework services.
             services.AddMvc();
-
-            NodeSettings settings = new NodeSettings()
-            {
-                FfMpegPath = Configuration["NodeSettings:FfMpegPath"],
-                TempDirectory = Configuration["NodeSettings:TempDirectory"],
-                ClusterUrl = Configuration["NodeSettings:ClusterUrl"],
-                ActorsCount = Configuration.GetValue<int>("NodeSettings:ActorsCount")
-            };
-
-            services.AddNode(settings);
+            services.AddNode();
             Services = services.BuildServiceProvider();
         }
 

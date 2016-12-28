@@ -1,4 +1,5 @@
-﻿using Common.EndpointMappers;
+﻿using System;
+using Common.EndpointMappers;
 using Common.Messages;
 using Common.Models.Settings;
 using Common.Services;
@@ -25,32 +26,36 @@ namespace Common.Models.Extensions
         /// <summary>
         /// Инициализация ноды и добавление всех ее зависимостей
         /// </summary>
-        public static Node AddNode(this IServiceCollection services, NodeSettings nodeSettings)
+        public static Node AddNode(this IServiceCollection services)
         {
             var statusService = new StatusService<StatusMessage>();
-            var workerNode = new Node(statusService, nodeSettings);
-            services.AddSingleton<Node>(workerNode);
-            services.AddSingleton<IStatusService<StatusMessage>>(statusService);
-            services.AddTransient<IApiService, ApiService>();
-            services.AddTransient<IEndpoints, NodeEndpoints>();
+			services.AddSingleton<IStatusService<StatusMessage>>(statusService);
+			services.AddTransient<IApiService, ApiService>();
+			services.AddTransient<IEndpoints, NodeEndpoints>();
+			var serviceProvider = services.BuildServiceProvider();
+			var env = serviceProvider.GetRequiredService<IHostingEnvironment>();
 
-            var serviceProvider = workerNode.ServiceProvider = services.BuildServiceProvider();
-            var env = serviceProvider.GetRequiredService<IHostingEnvironment>();
+			var builder = new ConfigurationBuilder()
+				.SetBasePath(env.ContentRootPath)
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+			var configuration = builder.Build();
+			NodeSettings nodeSettings = new NodeSettings()
+			{
+				FfMpegPath = configuration["NodeSettings:FfMpegPath"],
+				TempDirectory = configuration["NodeSettings:TempDirectory"],
+				ClusterUrl = configuration["NodeSettings:ClusterUrl"],
+				NodeUrl = new Uri(configuration["NodeSettings:NodeUrl"]).Authority,
+				ActorsCount = configuration.GetValue<int>("NodeSettings:ActorsCount")
+			};
 			
-			//TODO !!!
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile(@"Properties/launchSettings.json", optional: false, reloadOnChange: true);
-            var launchConfig = builder.Build();
-            var ssslPort = launchConfig.GetValue<int>("iisSettings:iisExpress:sslPort");
-            var hostUrl = launchConfig.GetValue<string>("iisSettings:iisExpress:applicationUrl");
-
-            workerNode.HostUrl = hostUrl;
-
+			var node = new Node(statusService, nodeSettings, serviceProvider);
+            services.AddSingleton<Node>(node);
+			
             var lifetime = serviceProvider.GetRequiredService<IApplicationLifetime>();
-            lifetime.ApplicationStarted.Register(workerNode.Started);
-            lifetime.ApplicationStopped.Register(workerNode.Stopped);
-            return workerNode;
+            lifetime.ApplicationStarted.Register(node.Started);
+            lifetime.ApplicationStopped.Register(node.Stopped);
+            return node;
         }
     }
 }

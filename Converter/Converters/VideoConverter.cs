@@ -109,10 +109,9 @@ namespace Converter.Converters
             {
                 throw new Exception("Ошибка получения метаданных файла", e);
             }
-
-            //TODO дорботть поиск видеопотока
+			
             // получаем данные о потоках файла
-            var xStreams = xData.Elements("streams")                ;
+            var xStreams = xData.Elements("streams");
 
             if (xStreams == null || xStreams.Count() == 0)
             {

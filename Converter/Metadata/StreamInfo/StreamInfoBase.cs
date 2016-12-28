@@ -2,7 +2,6 @@
 
 namespace Converter.Metadata.StreamInfo
 {
-    //TODO добавить Namespace
     [XmlRoot(Namespace = "", ElementName = "stream")]
     public abstract class StreamInfoBase
     {

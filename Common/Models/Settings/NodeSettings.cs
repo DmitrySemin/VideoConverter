@@ -14,12 +14,16 @@
         /// </summary>
         public string TempDirectory { get; set; }
         /// <summary>
-        /// Путь к кластеру
+        /// Путь к кластеру из окружения ноды
         /// </summary>
         public string ClusterUrl { get; set; }
-        /// <summary>
-        /// Количество акторов
-        /// </summary>
-        public int ActorsCount { get; set; }
+		/// <summary>
+		/// Путь к ноде из окружения кластера
+		/// </summary>
+		public string NodeUrl { get; set; }
+		/// <summary>
+		/// Количество акторов
+		/// </summary>
+		public int ActorsCount { get; set; }
     }
 }

@@ -36,14 +36,7 @@ namespace Cluster
             // Add framework services.
             services.AddMvc();
             services.AddRouting();
-            
-            ClusterSettings settings = new ClusterSettings()
-            {
-                InputPath = Configuration["ClusterSettings:InputPath"],
-                OutputPath = Configuration["ClusterSettings:OutputPath"]
-            };
-            
-            services.AddCluster(settings);
+            services.AddCluster();
             Services = services.BuildServiceProvider();
         }
         

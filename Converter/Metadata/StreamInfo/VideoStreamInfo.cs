@@ -6,7 +6,6 @@ using System.Xml.Serialization;
 
 namespace Converter.Metadata.StreamInfo
 {
-    //TODO добавить Namespace
     [XmlRoot(Namespace = "", ElementName = "stream")]
     public class VideoStreamInfo : StreamInfoBase
     {

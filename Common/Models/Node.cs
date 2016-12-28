@@ -19,36 +19,23 @@ namespace Common.Models
         private const int _heartbeatInterval = 30;
 		private IStatusService<StatusMessage> _status;
         private IServiceProvider _serviceProvider { get; set; }
-        private string _hostUrl;
         private NodeSettings _nodeSettings;
 		private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-
-		public IServiceProvider ServiceProvider { set { _serviceProvider = value; } }
-
-		/// <summary>
-		/// Адрес ноды - необходим для обращения к ней в последующем
-		/// </summary>
-	    public string HostUrl
-	    {
-		    set
-		    {
-				var uri = new Uri(value);
-			    _hostUrl = uri.Authority;
-		    }
-	    }
-
+		
 		/// <summary>
 		/// .ctor
 		/// Инициализируем акторы, добавляя обработчик завершения таска
 		/// </summary>
 		/// <param name="status"></param>
 		/// <param name="nodeSettings"></param>
-        public Node(IStatusService<StatusMessage> status, NodeSettings nodeSettings)
+        public Node(IStatusService<StatusMessage> status, NodeSettings nodeSettings, IServiceProvider serviceProvider)
         {
             _status = status;
             _nodeSettings = nodeSettings;
-            
-            for (var i = 0; i < nodeSettings.ActorsCount; i++)
+			_serviceProvider = serviceProvider;
+
+
+			for (var i = 0; i < nodeSettings.ActorsCount; i++)
             {
                 var actor = new Actor(nodeSettings);
                 actor.AddCallback("node", message =>
@@ -58,7 +45,7 @@ namespace Common.Models
                     apiService.PutOrPostRequest<TaskComplete, string>(url, new TaskComplete()
                     {
                         TaskId = message.TaskId,
-                        Host = _hostUrl
+                        Host = _nodeSettings.NodeUrl
 					});
                 });
 
@@ -92,7 +79,7 @@ namespace Common.Models
                 apiService.PutOrPostRequest<NodeStarted, string>(url, new NodeStarted()
                 {
                     ActorsCount = _nodeSettings.ActorsCount,
-                    Host = _hostUrl
+                    Host = _nodeSettings.NodeUrl
 				});
             }
             catch (Exception ex)
@@ -108,7 +95,7 @@ namespace Common.Models
             {
                 try
                 {
-                    apiService.GetRequest<string>(string.Format("{0}/api/worker/ready/{1}", _nodeSettings.ClusterUrl, _hostUrl));
+                    apiService.GetRequest<string>(string.Format("{0}/api/worker/ready/{1}", _nodeSettings.ClusterUrl, _nodeSettings.NodeUrl));
                 }
                 catch (Exception ex)
                 {
@@ -126,7 +113,7 @@ namespace Common.Models
             try
             {
                 var apiService = _serviceProvider.GetRequiredService<IApiService>();
-                apiService.GetRequest<string>(string.Format("{0}/api/worker/left/{1}", _nodeSettings.ClusterUrl, WebUtility.HtmlEncode(_hostUrl)));
+                apiService.GetRequest<string>(string.Format("{0}/api/worker/left/{1}", _nodeSettings.ClusterUrl, WebUtility.HtmlEncode(_nodeSettings.NodeUrl)));
             }
             catch (Exception ex)
             {
@@ -149,7 +136,7 @@ namespace Common.Models
 				apiService.PutOrPostRequest<NodeError, string>(url, new NodeError()
 				{
 					Error = error,
-					Host = _hostUrl
+					Host = _nodeSettings.NodeUrl
 				});
 			}
 			catch (Exception ex)
