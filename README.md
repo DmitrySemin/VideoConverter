@@ -31,5 +31,5 @@
 
 ##Визуализация:
 Не стал тратить время на равернутый UX. Вывожу объемы, скорость, время, информацию по нодам. Подключившиеся и потом отвалившиеся ноды так же выводятся. Отдельно рисую топологию в виде графа:
-![](https://gyazo.com/e537c2ead34841e81d084550c45f8ee2)
+![alt text](https://gyazo.com/e537c2ead34841e81d084550c45f8ee2)
 Было желание прикрутить SignalR, но не хватило времени. Официально SignalR не поддерживается в ASP.NET Core. Неофициально возможно все. Например тут: https://radu-matei.github.io/blog/aspnet-core-mvc-signalr/ или тут https://chsakell.com/2016/10/10/real-time-applications-using-asp-net-core-signalr-angular/. 
